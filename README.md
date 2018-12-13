@@ -43,8 +43,31 @@ features.
 * Implement a reader that can be used as the basis of language development
 * Design and implement a series of special forms that allow Scheme to be
   written with the benefits of the enhanced reader.
+* Strongly embrace R7RS and bake Scheme Red (and Tangerine and Orange and...)
+  types into the langue.
+* Prefer immutability wherever possible
+* Provide a protocol-like facility (and use it pervasively e.g. by
+  supporting application of any object that supports a hypothetical
+  appliable protocol.
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
   procedure applications should Just Work.
+
+
+
+## Currently supported special forms
+
+* `Define-proc` for single and multiple arities with nested vector
+  dereferencing, `& rest-arguments` and `:as all-arguments` support
+* `Define`
+* Procedure application allows strings, lists, vectors, and hash tables
+  to be applied
+* `#([args ...] ...)` lambda form for single and multiple arities
+
+## Notable missing features
+
+* Map destructuring
+* `Let`
+* Quasi-quoting
 
 ## Licensing
 
