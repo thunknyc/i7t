@@ -244,11 +244,6 @@
           (cons `(,x ,accessor) bindings))
          (('__VEC as ...)
           (make-bindings as '_ '_ accessor bindings))))
-;; TODO:
-;;
-;; * Handle map derefs
-;; * Connect to TRANSLATE-I7T, destructuring each arg
-;; * Count args
 
 (define (make-args n)
   (map (lambda (i) (string->symbol (show #f "__arg" i))) (iota n)))
