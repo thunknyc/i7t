@@ -103,7 +103,7 @@ The file `test.i7t`:
 (show true (inc-all '([0] [1] [2] [3])) nl)
 ```
 
-Transcript of Chibi Scheme (invoked via `chibi-scheme -R`:
+Transcript of Chibi Scheme invoked via `chibi-scheme -R`:
 
 ```
 > (load "i7t.scm")
