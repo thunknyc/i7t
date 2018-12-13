@@ -52,8 +52,6 @@ features.
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
   procedure applications should Just Work.
 
-
-
 ## Currently supported special forms
 
 * `Define-proc` for single and multiple arities with nested vector
@@ -66,8 +64,61 @@ features.
 ## Notable missing features
 
 * Map destructuring
+* `And`, `or`, etc.
+* `If` and `cond`
 * `Let`
 * Quasi-quoting
+
+## A sample source file with transcript
+
+The file `test.i7t`:
+
+```
+(define v1 '[foo bar (snafu blorg)])
+(define beverages '{scotch laphroig rye bulleit
+                    vodka no-thanks beer pilsner
+                    water tap wine (bordeux red)})
+
+(define-proc add
+  ([] 0)
+  ([a] a)
+  ([a b] (+ a b))
+  ([a b c] (+ a b c))
+  ([a b c d & e] (apply + a b c d e)))
+
+(define-proc sine
+  [theta] (sin theta))
+
+(define-proc inc-all [xs]
+  (map #([[x] & rest :as args]
+         (show true "rest args: " rest ", all args: " args nl)
+         (+ x 1))
+       xs (iota 100)))
+
+(define-proc pick [col & offsets]
+  (map #([i] (col i)) offsets))
+
+(show true (pick beverages 'scotch 'water 'wine) nl)
+(show true (pick v1 2) nl)
+(show true (inc-all '([0] [1] [2] [3])) nl)
+```
+
+Transcript of Chibi Scheme (invoked via `chibi-scheme -R`:
+
+```
+> (load "i7t.scm")
+WARNING: importing already defined binding: set?
+WARNING: importing already defined binding: set?
+> (load-i7t "test.i7t")
+(laphroig tap (bordeux red))
+((snafu blorg))
+rest args: (0), all args: (#(0) 0)
+rest args: (1), all args: (#(1) 1)
+rest args: (2), all args: (#(2) 2)
+rest args: (3), all args: (#(3) 3)
+(1 2 3 4)
+>
+```
 
 ## Licensing
 
