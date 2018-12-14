@@ -280,7 +280,7 @@
     (match args
 
            (('& rest)
-            `(,rest (apply ,(build-lambda '() rest '_ body) rest)))
+            `(,rest (apply ,(build-lambda '() rest '_ body) ,rest)))
 
            ((a1 ... '& rest ('__KW "as") as)
             `(,as (apply ,(build-lambda a1 rest as body) ,as)))
