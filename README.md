@@ -145,11 +145,12 @@ The file `test.i7t`:
 ## Why should you care?
 
 There are many things to like about Clojure, and none of them are
-inherently incompatible with inclusion in Scheme[<sup>0</sup>](#0). Among these
-features are its protocol orientation and its heavy bias toward
-immutability. The Scheme community has recognized the value of these
-features and has worked -- and continues to work -- to incorporate
-these features into the Scheme ecosystem.
+inherently incompatible with inclusion in Scheme<sup
+id="a0">[0](#f0)</sup>. Among these features are its protocol
+orientation and its heavy bias toward immutability. The Scheme
+community has recognized the value of these features and has worked --
+and continues to work -- to incorporate these features into the Scheme
+ecosystem.
 
 The issue of Clojure's reader, however, attracts less enthusiasm
 within the community. I think this is mistaken. There are at least two
@@ -186,5 +187,5 @@ MIT License.
 
 ## Footnote
 
-<a name="0">0</a>: Aside from JVM support, which, according to Taylor
-Campbell, is _the_ killer Clojure feature.
+0. <small id="f0"> Aside from JVM support, which, according to Taylor
+Campbell, is _the_ killer Clojure feature.</small> [↩](#a0)
