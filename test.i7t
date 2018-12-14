@@ -29,6 +29,8 @@
   (list s w 'bevs-length (*-length bevs)))
 
 (test-begin "Test I7t")
+(test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
+(test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
 (test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
 (test '((snafu blorg)) (pick v1 2))

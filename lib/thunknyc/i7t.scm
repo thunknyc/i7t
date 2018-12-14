@@ -379,6 +379,18 @@
          (('__LAMBDA ('__VEC a1 ...) e1 e2 ...)
           `(lambda ,@(lambda-clause a1 e1 e2)))
 
+         ;; Let (let* in Scheme)
+         (('__LIST 'let ('__VEC nvs ...) e es ...)
+          (let ((namevals (map-namekey-args nvs))
+                (body (cons (translate-i7t e) (map translate-i7t es))))
+            `(let* (,@namevals) ,@body)))
+
+         ;; Loop (loop in Clojure, named let in Scheme)
+         (('__LIST 'loop recur ('__VEC nvs ...) e es ...)
+          (let ((namevals (map-namekey-args nvs))
+                (body (cons (translate-i7t e) (map translate-i7t es))))
+            `(let ,recur (,@namevals) ,@body)))
+
          ;; Quotation
          (('__LIST 'quote a)
           (enquoted (translate-i7t a)))

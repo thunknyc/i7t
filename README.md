@@ -44,6 +44,8 @@ following procedures of interest will now be available to you:
 ## Currently supported special forms
 
 * `And`, `or`, `if`, `cond`
+* `Let`, behaving as Scheme's `let*`
+* `Loop`, behaving as Schemes named-`let`
 * `Define-proc` for single and multiple arities with nested vector
   dereferencing, `& rest-arguments` and `:as all-arguments` support
 * `Define`
@@ -55,7 +57,6 @@ following procedures of interest will now be available to you:
 
 ## Notable missing features
 
-* `Let`
 * Quasi-quoting
 * A way to `write` or `display` values aside from as Scheme values
 
@@ -104,6 +105,8 @@ The file `test.i7t`:
   (list s w 'bevs-length (*-length bevs)))
 
 (test-begin "Test I7t")
+(test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
+(test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
 (test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
 (test '((snafu blorg)) (pick v1 2))
