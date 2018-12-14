@@ -7,13 +7,13 @@
    keyword keyword? string->keyword symbol->keyword
    keyword->string keyword->symbol
 
-   extend protocol-proc
-
-   <hash-table>
+   extend apply-protocol
 
    nil nil? i7t-comparator *-ref *-length *-drop
 
    make-applicable
+
+   len
 
    ;; handy procs
    inc dec chunk identity

@@ -450,28 +450,47 @@
   (let ((exprs (expand-file-i7t filename)))
     (for-each (lambda (expr) (eval expr)) exprs)))
 
+;;;
+
+(define (map-assoc m . kvs)
+  (let ((new-m (if (nil? m) (empty-map) (hash-table-copy m))))
+    (hash-table-merge! new-m (apply hash-table i7t-comparator kvs))))
+
+(define (map-merge m . ms)
+  (let loop ((ms ms)
+             (new-m (if (nil? m) (empty-map) (hash-table-copy m))))
+    (cond ((null? ms) new-m)
+          (else (loop (cdr ms)
+                      (hash-table-merge! new-m (car ms)))))))
 
 ;;; Protocols
-
-(define protocol-implementors (empty-map))
+(define protocol-type-procs (empty-map))
 
 (define (extend type protocol proc-specs)
-  (let ((protocol-map (hash-table-ref/default
-                       protocol-implementors protocol (empty-map))))
-    (hash-table-set! protocol-map type proc-specs)
-    (hash-table-set! protocol-implementors protocol protocol-map)))
+  (let* ((protocol-map (*-ref protocol-type-procs protocol (empty-map)))
+         (type-map (*-ref protocol-map type (empty-map))))
+    (set! protocol-type-procs
+          (map-assoc protocol-type-procs protocol
+                     (map-assoc protocol-map type
+                                (map-merge type-map proc-specs))))))
 
-(define (protocol-proc protocol proc-name object)
+(define (apply-protocol protocol proc-name object . args)
   (let* ((protocol-map (hash-table-ref/default
-                        protocol-implementors protocol (empty-map)))
+                        protocol-type-procs protocol (empty-map)))
          (type (type-of object))
          (type-map (hash-table-ref/default
                     protocol-map (type-of object) (empty-map)))
          (proc (hash-table-ref/default
                 type-map proc-name
                 (lambda args
-                  (error #t "Object " object
+                  (error
+                   (show #f "Object " object
                          " of type " type
-                         " does not support proc " proc-name
-                         " of protocol " protocol)))))
-    (lambda xs (apply proc object xs))))
+                         " does not support " proc-name
+                         " method of protocol " protocol))))))
+    (apply proc object args)))
+
+(define (len col)
+  (apply-protocol 'core.rt 'length col))
+
+(extend <hash-table> 'core.rt (i7t "{'apply *-ref 'length *-length}"))
