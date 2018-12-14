@@ -145,7 +145,7 @@ The file `test.i7t`:
 ## Why should you care?
 
 There are many things to like about Clojure, and none of them are
-inherently incompatible with inclusion in Scheme[0](#0). Among these
+inherently incompatible with inclusion in Scheme[<sup>0</sup>](#0). Among these
 features are its protocol orientation and its heavy bias toward
 immutability. The Scheme community has recognized the value of these
 features and has worked -- and continues to work -- to incorporate
