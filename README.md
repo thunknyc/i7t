@@ -57,6 +57,7 @@ following procedures of interest will now be available to you:
 
 * `Let`
 * Quasi-quoting
+* A way to `write` or `display` values aside from as Scheme values
 
 ## New types
 
