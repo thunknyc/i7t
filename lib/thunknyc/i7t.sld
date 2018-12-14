@@ -12,7 +12,7 @@
    make-applicable
 
    ;; handy procs
-   inc dec
+   inc dec chunk
 
    ;; re-exports
    match-lambda*
