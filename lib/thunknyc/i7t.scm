@@ -138,6 +138,8 @@
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
 
+(define (identity x) x)
+
 (define (vector-drop v index)
   (let ((n (vector-length v)))
     (let loop ((i 0) (xs '()))
@@ -172,7 +174,7 @@
                     (vector-ref col i))
                    (else default))))
           ((hash-table? col)
-           (hash-table-ref/default col i o))
+           (hash-table-ref/default col i default))
           ((set? col)
            (cond ((set-contains? col i) i)
                  (else nil)))
@@ -323,6 +325,9 @@
 (define-record-type <nil> (construct-nil) nil?)
 (define nil (construct-nil))
 
+(define (empty-map) (hash-table i7t-comparator))
+(define <hash-table> (type-of (empty-map)))
+
 (define-record-type <keyword>
   (keyword name)
   keyword?
@@ -430,6 +435,9 @@
          (translated (translate-i7t parsed)))
     (eval translated)))
 
+(define (i7t . els)
+  (eval-i7t (apply show #f els)))
+
 (define (read-file-i7t filename)
   (let* ((stream (file->parse-stream filename))
          (i7t-exprs (parse-fold i7t-object cons '() stream 0)))
@@ -441,3 +449,29 @@
 (define (load-i7t filename)
   (let ((exprs (expand-file-i7t filename)))
     (for-each (lambda (expr) (eval expr)) exprs)))
+
+
+;;; Protocols
+
+(define protocol-implementors (empty-map))
+
+(define (extend type protocol proc-specs)
+  (let ((protocol-map (hash-table-ref/default
+                       protocol-implementors protocol (empty-map))))
+    (hash-table-set! protocol-map type proc-specs)
+    (hash-table-set! protocol-implementors protocol protocol-map)))
+
+(define (protocol-proc protocol proc-name object)
+  (let* ((protocol-map (hash-table-ref/default
+                        protocol-implementors protocol (empty-map)))
+         (type (type-of object))
+         (type-map (hash-table-ref/default
+                    protocol-map (type-of object) (empty-map)))
+         (proc (hash-table-ref/default
+                type-map proc-name
+                (lambda args
+                  (error #t "Object " object
+                         " of type " type
+                         " does not support proc " proc-name
+                         " of protocol " protocol)))))
+    (lambda xs (apply proc object xs))))
