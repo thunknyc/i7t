@@ -3,8 +3,8 @@
    ;; meta procs
    parse-i7t translate-i7t read-file-i7t expand-file-i7t load-i7t
 
-   ;; support procs
-   i7t-comparator make-applicable *-ref *-length *-drop
+   ;; support procs and values
+   nil i7t-comparator make-applicable *-ref *-length *-drop
 
    ;; handy procs
    inc dec
