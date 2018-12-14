@@ -93,12 +93,13 @@ The file `test.i7t`:
 (define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
   (list s w 'bevs-length (*-length bevs)))
 
-(test-begin)
+(test-begin "Test I7t")
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
 (test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
 (test '((snafu blorg)) (pick v1 2))
 (test '(laphroig tap) (drink-ingredients beverages))
 (test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
+(test :yo (cond false 12 (= (dec 1) 0) :yo))
 (test-end)
 ```
 
