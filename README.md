@@ -57,8 +57,8 @@ Have fun!
 * Design and implement a series of special forms that allow Scheme to be
   written with the benefits of the enhanced reader.
 * Strongly embrace R7RS and bake Scheme Red (and Tangerine and Orange and...)
-  types into the langue.
-* Prefer immutability wherever possible
+  types into the language.
+* Presume immutability.
 * Provide a protocol-like facility (and use it pervasively e.g. by
   supporting application of any object that supports a hypothetical
   `<appliable>` protocol.
