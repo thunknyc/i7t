@@ -43,7 +43,10 @@ At the Chibi REPL you can evaluate I7t like this:
 Or you can load and evalute files like this:
 
 ```
-(load-i7t "test.i7t") ;; Prints the results of language tests
+> (load-i7t "test.i7t")
+Test I7t: ........
+8 out of 8 (100.0%) tests passed in 0.007533073425292969 seconds.
+>
 ```
 
 Have fun!
