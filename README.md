@@ -43,7 +43,7 @@ following procedures of interest will now be available to you:
 
 ## Currently supported special forms
 
-* `And`, `or`, `if`
+* `And`, `or`, `if`, `cond`
 * `Define-proc` for single and multiple arities with nested vector
   dereferencing, `& rest-arguments` and `:as all-arguments` support
 * `Define`
@@ -56,7 +56,6 @@ following procedures of interest will now be available to you:
 
 ## Notable missing features
 
-* `Cond`
 * `Let`
 * Quasi-quoting
 

@@ -33,4 +33,5 @@
 (test '((snafu blorg)) (pick v1 2))
 (test '(laphroig tap) (drink-ingredients beverages))
 (test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
+(test :yo (cond false 12 (= (dec 1) 0) :yo))
 (test-end)
