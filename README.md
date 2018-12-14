@@ -43,11 +43,12 @@ following procedures of interest will now be available to you:
 
 ## Currently supported special forms
 
+* `And`, `or`, `if`
 * `Define-proc` for single and multiple arities with nested vector
   dereferencing, `& rest-arguments` and `:as all-arguments` support
 * `Define`
 * `Quote` (and traditional `'foo` syntax)
-* `Test`
+* `Test` from `(chibi test)`
 
 * Procedure application allows strings, lists, vectors, and hash tables
   to be applied
@@ -55,8 +56,7 @@ following procedures of interest will now be available to you:
 
 ## Notable missing features
 
-* `And`, `or`, etc.
-* `If` and `cond`
+* `Cond`
 * `Let`
 * Quasi-quoting
 
