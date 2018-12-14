@@ -145,8 +145,8 @@ The file `test.i7t`:
 ## Why should you care?
 
 There are many things to like about Clojure, and none of them are
-inherently incompatible with inclusion in Scheme[1]. Among these features
-are its protocol orientation and its heavy bias toward
+inherently incompatible with inclusion in Scheme[0](#0). Among these
+features are its protocol orientation and its heavy bias toward
 immutability. The Scheme community has recognized the value of these
 features and has worked -- and continues to work -- to incorporate
 these features into the Scheme ecosystem.
@@ -186,5 +186,5 @@ MIT License.
 
 ## Footnote
 
-[1]: Aside from JVM support, which according to Taylor Campbell, is
-_the_ killer Clojure feature.
+<a name="0">0</a>: Aside from JVM support, which, according to Taylor
+Campbell, is _the_ killer Clojure feature.
