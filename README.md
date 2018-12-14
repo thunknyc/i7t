@@ -49,7 +49,6 @@ following procedures of interest will now be available to you:
 * `Define`
 * `Quote` (and traditional `'foo` syntax)
 * `Test` from `(chibi test)`
-
 * Procedure application allows strings, lists, vectors, and hash tables
   to be applied
 * `#([args ...] ...)` lambda form for single and multiple arities
@@ -58,6 +57,15 @@ following procedures of interest will now be available to you:
 
 * `Let`
 * Quasi-quoting
+
+## New types
+
+* `<nil>`: The symbol `nil` represents the nil object and `nil?` tests
+  for it.
+* `<keyword>`: A variety of procedures construct, test, or convert
+  keyword objects: `keyword`, `keyword?`, `keyword-name`,
+  `keyword->string`, `keyword->symbol`, `string->keyword`,
+  `symbol->keyword`.
 
 ## A sample source file
 
