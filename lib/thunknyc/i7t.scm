@@ -340,12 +340,25 @@
 (define (borrowed? name)
   (set-contains? borrowed-macros name))
 
+(define (translate-cond test-exprs else-expr)
+  (let ((tests (chunk 2 (map translate-i7t test-exprs))))
+    `(cond ,@tests ,@(if else-expr `((else ,(translate-i7t else-expr))) '()))))
+
 (define (translate-i7t form)
   (match form
 
+         ;; Borrowed special forms
          (('__LIST (? borrowed? name) args ...)
           `(,name ,@(map translate-i7t args)))
 
+         ;; Cond
+         (('__LIST 'cond test-exprs ... ('__KW "else") else-expr)
+          (translate-cond test-exprs else-expr))
+
+         (('__LIST 'cond test-exprs ...)
+          (translate-cond test-exprs #f))
+
+         ;; Definitions
          (('__LIST 'define name value)
           `(define ,name ,(translate-i7t value)))
 
