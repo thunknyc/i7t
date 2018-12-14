@@ -323,11 +323,18 @@
 (define-record-type <nil> (construct-nil) nil?)
 (define nil (construct-nil))
 
+(define borrowed-macros (apply set i7t-comparator
+                               '(and or if
+                                 test)))
+
+(define (borrowed? name)
+  (set-contains? borrowed-macros name))
+
 (define (translate-i7t form)
   (match form
 
-         (('__LIST 'test args ...)
-          `(test ,@(map translate-i7t args)))
+         (('__LIST (? borrowed? name) args ...)
+          `(,name ,@(map translate-i7t args)))
 
          (('__LIST 'define name value)
           `(define ,name ,(translate-i7t value)))
