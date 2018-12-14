@@ -3,7 +3,7 @@
 Incrément (henceforth referred to as I7t) is a Scheme that supports
 and embraces an S-expression reader based on Clojure's (and also
 therefore EDN's) syntax. It is hosted atop Alex Shinn's [Chibi
-Scheme](/ashinn/chibi-scheme).
+Scheme](https://github.com/ashinn/chibi-scheme).
 
 Pull requests and issue submissions are welcomed.
 
