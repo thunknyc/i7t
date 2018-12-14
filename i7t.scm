@@ -1,22 +1,10 @@
-;; Incrément: A Scheme based on an enhanced EDN-like reader
-;;
-;; Edwin Watkeys, Thunk NYC Corp.
-;; <edw@poseur.com>
-;; 13 December 2018
-;; http://github.com/thunknyc/i7n
-;;
-
 (import (scheme red)
 
-        (chibi ast) (chibi io) (chibi match)
+        (only (chibi ast) analyze ast->sexp optimize)
+        (chibi io) (chibi match)
         (chibi parse) (chibi show) (chibi test)
 
-        (srfi 99 records inspection)
         (srfi 111) (srfi 113) (srfi 128))
-
-(define (debug message x)
-  (show #t message x nl)
-  x)
 
 (define i7t-comparator (make-default-comparator))
 
@@ -180,6 +168,9 @@
 
 (define (nil? x) (equal? nil))
 
+(define (inc x) (+ x 1))
+(define (dec x) (- x 1))
+
 (define (vector-drop v index)
   (let ((n (vector-length v)))
     (let loop ((i 0) (xs '()))
@@ -223,7 +214,7 @@
 (define (*-drop col i)
   (cond ((list? col) (drop col i))
         ((vector? col) (vector-drop col i))
-        (else (error (show #f "Unknown sequential " col))))  )
+        (else (error (show #f "Unknown sequential " col)))))
 
 (define (*-length col)
   (cond ((list? col) (length col))
@@ -234,24 +225,69 @@
 (define (*-empty? col)
   (= (*-length col) 0))
 
-(define (seq-accessor a i) `(*-ref ,a ,i))
+(define (arg-accessor a i) `(*-ref ,a ,i))
 (define (rest-accessor a skip) `(*-drop ,a ,skip))
+
+(define (positional-args arg-names)
+  (map (lambda (args keys) (list args keys))
+       arg-names (iota (*-length arg-names))))
+
+(define (map-key-args arg-names)
+  (map (lambda (arg) `(,arg (quote ,arg))) arg-names))
+
+(define (chunk n col)
+  (let loop ((col col) (even '()) (out '()) (i 0))
+    (cond ((null? col) (reverse! out))
+          ((= (remainder (inc i) n) 0)
+           (loop (cdr col)
+                 '()
+                 (cons (reverse! (cons (car col) even)) out)
+                 (inc i)))
+          (else
+           (loop (cdr col)
+                 (cons (car col) even)
+                 out
+                 (inc i))))))
+
+(define (map-namekey-args nks)
+  (map (lambda (nk)
+         (let ((name (car nk))
+               (key (cadr nk)))
+           `(,name ,(translate-i7t key))))
+       (chunk 2 nks)))
 
 (define (destructure accessor var bindings)
   (match var
          ('_ bindings)
          ((? symbol? x)
           (cons `(,x ,accessor) bindings))
+         (('__VEC as ... '& rest ('__KW "as") all)
+          (make-bindings (positional-args as) rest all accessor bindings))
+         (('__VEC as ... ('__KW "as") all)
+          (make-bindings (positional-args as) '_ all accessor bindings))
+         (('__VEC as ... '& rest)
+          (make-bindings (positional-args as) rest '_ accessor bindings))
          (('__VEC as ...)
-          (make-bindings as '_ '_ accessor bindings))))
+          (make-bindings (positional-args as) '_ '_ accessor bindings))
+         (('__MAP ('__KW "keys") ('__VEC ks ...) ('__KW "as") all)
+          (make-bindings (map-key-args ks) '_ all accessor bindings))
+         (('__MAP ('__KW "keys") ('__VEC ks ...))
+          (make-bindings (map-key-args ks) '_ '_ accessor bindings))
+         (('__MAP nks ... ('__KW "as") all)
+          (make-bindings (map-namekey-args nks) '_ all accessor bindings))
+         (('__MAP nks ...)
+          (make-bindings (map-namekey-args nks) '_ '_ accessor bindings))
+         (x (error (show #f "No matching destructuring for " x)))))
 
 (define (make-args n)
   (map (lambda (i) (string->symbol (show #f "__arg" i))) (iota n)))
 
-(define (make-bindings arg-names rest-name as-name parent-accessor bindings)
-  (let* ((n (*-length arg-names))
-         (arg-accessors (map (lambda (i) (seq-accessor parent-accessor i))
-                             (iota (+ n 1))))
+(define (make-bindings args rest-name as-name parent-accessor bindings)
+  (let* ((n (*-length args))
+         (arg-names (map car args))
+         (arg-keys (map cadr args))
+         (arg-accessors (map (lambda (k) (arg-accessor parent-accessor k))
+                             arg-keys))
          (arg-bindings (fold destructure bindings arg-accessors arg-names))
          (rest-binding (destructure (rest-accessor parent-accessor n)
                                     rest-name arg-bindings))
@@ -260,7 +296,10 @@
 
 (define (build-lambda arg-names rest-name as-name body)
   (let* ((root-accessor (if (equal? as-name '_) '__args as-name))
-         (bindings (make-bindings arg-names rest-name '_ root-accessor '())))
+         (bindings (make-bindings (map (lambda (name key) (list name key))
+                                       arg-names
+                                       (iota (inc (length arg-names))))
+                                  rest-name '_ root-accessor '())))
     (cond ((*-empty? bindings)
            `(lambda () (let ((,root-accessor '())) ,@body)))
           (else
@@ -291,7 +330,9 @@
              `(,arg-names (,(build-lambda a1 '_ '_ body) ,@arg-names))))
 
            (()
-            `(() ((build-lambda '() '_ '_ body)))))))
+            `(() ((build-lambda '() '_ '_ body))))
+
+           (x (error (show #f "No supported lambda for " x))))))
 
 (define (make-applicable procish)
   (cond ((procedure? procish) procish)
@@ -317,6 +358,9 @@
 
 (define (translate-i7t form)
   (match form
+
+         (('__LIST 'test args ...)
+          `(test ,@(map translate-i7t args)))
 
          (('__LIST 'define name value)
           `(define ,name ,(translate-i7t value)))
@@ -376,20 +420,3 @@
 (define (load-i7t filename)
   (let ((exprs (expand-file-i7t filename)))
     (for-each (lambda (expr) (eval expr)) exprs)))
-
-(define inc-all
-  (lambda #0=(__arg0)
-          ((lambda __args
-             (let ((xs (*-ref __args 0)))
-               ((make-applicable map)
-                (lambda args
-                  (apply (lambda args
-                           (let ((rest (*-drop args 1))
-                                 (x (*-ref (*-ref args 0) 0)))
-                             ((make-applicable show) #t
-                              "rest args: " rest ", all args: " args nl)
-                             ((make-applicable +) x 1)))
-                         args))
-                xs
-                ((make-applicable iota) 100))))
-           . #0#)))

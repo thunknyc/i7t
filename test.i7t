@@ -1,7 +1,7 @@
 (define v1 '[foo bar (snafu blorg)])
 (define beverages '{scotch laphroig rye bulleit
                     vodka no-thanks beer pilsner
-                    water tap wine (bordeux red)})
+                    water tap wine (bordeaux red)})
 
 (define-proc add
   ([] 0)
@@ -15,13 +15,22 @@
 
 (define-proc inc-all [xs]
   (map #([[x] & rest :as args]
-         (show true "rest args: " rest ", all args: " args nl)
          (+ x 1))
        xs (iota 100)))
 
 (define-proc pick [col & offsets]
   (map #([i] (col i)) offsets))
 
-(show true (pick beverages 'scotch 'water 'wine) nl)
-(show true (pick v1 2) nl)
-(show true (inc-all '([0] [1] [2] [3])) nl)
+(define-proc drink-ingredients [{:keys [scotch water]}]
+  (list scotch water))
+
+(define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
+  (list s w 'bevs-length (*-length bevs)))
+
+(test-begin)
+(test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
+(test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
+(test '((snafu blorg)) (pick v1 2))
+(test '(laphroig tap) (drink-ingredients beverages))
+(test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
+(test-end)

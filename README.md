@@ -19,19 +19,20 @@
 * `Define-proc` for single and multiple arities with nested vector
   dereferencing, `& rest-arguments` and `:as all-arguments` support
 * `Define`
+* `Quote` (and traditional `'foo` syntax)
+* `Test`
 * Procedure application allows strings, lists, vectors, and hash tables
   to be applied
 * `#([args ...] ...)` lambda form for single and multiple arities
 
 ## Notable missing features
 
-* Map destructuring
 * `And`, `or`, etc.
 * `If` and `cond`
 * `Let`
 * Quasi-quoting
 
-## A sample source file with transcript
+## A sample source file
 
 The file `test.i7t`:
 
@@ -39,7 +40,7 @@ The file `test.i7t`:
 (define v1 '[foo bar (snafu blorg)])
 (define beverages '{scotch laphroig rye bulleit
                     vodka no-thanks beer pilsner
-                    water tap wine (bordeux red)})
+                    water tap wine (bordeaux red)})
 
 (define-proc add
   ([] 0)
@@ -53,33 +54,25 @@ The file `test.i7t`:
 
 (define-proc inc-all [xs]
   (map #([[x] & rest :as args]
-         (show true "rest args: " rest ", all args: " args nl)
          (+ x 1))
        xs (iota 100)))
 
 (define-proc pick [col & offsets]
   (map #([i] (col i)) offsets))
 
-(show true (pick beverages 'scotch 'water 'wine) nl)
-(show true (pick v1 2) nl)
-(show true (inc-all '([0] [1] [2] [3])) nl)
-```
+(define-proc drink-ingredients [{:keys [scotch water]}]
+  (list scotch water))
 
-Transcript of Chibi Scheme invoked via `chibi-scheme -R`:
+(define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
+  (list s w 'bevs-length (*-length bevs)))
 
-```
-> (load "i7t.scm")
-WARNING: importing already defined binding: set?
-WARNING: importing already defined binding: set?
-> (load-i7t "test.i7t")
-(laphroig tap (bordeux red))
-((snafu blorg))
-rest args: (0), all args: (#(0) 0)
-rest args: (1), all args: (#(1) 1)
-rest args: (2), all args: (#(2) 2)
-rest args: (3), all args: (#(3) 3)
-(1 2 3 4)
->
+(test-begin)
+(test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
+(test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
+(test '((snafu blorg)) (pick v1 2))
+(test '(laphroig tap) (drink-ingredients beverages))
+(test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
+(test-end)
 ```
 
 ## Why should you care?
