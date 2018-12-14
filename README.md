@@ -27,6 +27,21 @@ following procedures of interest will now be available to you:
 * `eval-i7t string`: Parse, translate, and evaluate `string`
   containing an I7t form.
 
+At the Chibi REPL you can evaluate I7t like this:
+
+```
+(eval-i7t "(loop iter [i 0] (if (> i 10) i (iter (inc i))))") ;; => 11
+((eval-i7t "#([& xs] (apply + xs))") 1 2 3 4) ;; => 10
+```
+
+Or you can load and evalute files like this:
+
+```
+(load-i7t "test.i7t") ;; Prints the results of language tests
+```
+
+Have fun!
+
 ## Goals of I7t
 
 * Implement a reader that can be used as the basis of language development
