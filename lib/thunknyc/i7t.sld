@@ -9,11 +9,15 @@
 
    extend apply-protocol
 
+   ;; unsupported
+   protocol-type-procs
+
    nil nil? i7t-comparator *-ref *-length *-drop
 
    make-applicable
 
-   len
+   ;; collection procs
+   len get
 
    ;; handy procs
    inc dec chunk identity

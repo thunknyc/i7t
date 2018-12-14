@@ -326,7 +326,6 @@
 (define nil (construct-nil))
 
 (define (empty-map) (hash-table i7t-comparator))
-(define <hash-table> (type-of (empty-map)))
 
 (define-record-type <keyword>
   (keyword name)
@@ -450,7 +449,7 @@
   (let ((exprs (expand-file-i7t filename)))
     (for-each (lambda (expr) (eval expr)) exprs)))
 
-;;;
+;;; Immutable map operations
 
 (define (map-assoc m . kvs)
   (let ((new-m (if (nil? m) (empty-map) (hash-table-copy m))))
@@ -464,6 +463,7 @@
                       (hash-table-merge! new-m (car ms)))))))
 
 ;;; Protocols
+
 (define protocol-type-procs (empty-map))
 
 (define (extend type protocol proc-specs)
@@ -484,13 +484,38 @@
                 type-map proc-name
                 (lambda args
                   (error
-                   (show #f "Object " object
-                         " of type " type
+                   (show #f "Object " (written object)
+                         " of type " (written type)
                          " does not support " proc-name
                          " method of protocol " protocol))))))
     (apply proc object args)))
 
 (define (len col)
-  (apply-protocol 'core.rt 'length col))
+  (apply-protocol 'core.col 'length col))
 
-(extend <hash-table> 'core.rt (i7t "{'apply *-ref 'length *-length}"))
+(define (get col i)
+  (apply-protocol 'core.col 'ref col i))
+
+(extend (type-of (empty-map)) 'core.col
+        (hash-table i7t-comparator
+                    'apply *-ref
+                    'length hash-table-size
+                    'ref *-ref))
+
+(extend (type-of #()) 'core.col
+        (hash-table i7t-comparator
+                    'apply *-ref
+                    'length vector-length
+                    'ref *-ref))
+
+(extend (type-of (cons 'a 'b)) 'core.col
+        (hash-table i7t-comparator
+                    'apply *-ref
+                    'length length
+                    'ref *-ref))
+
+(extend (type-of "") 'core.col
+        (hash-table i7t-comparator
+                    'apply *-ref
+                    'length string-length
+                    'ref *-ref))
