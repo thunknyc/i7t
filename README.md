@@ -35,7 +35,7 @@ following procedures of interest will now be available to you:
 * Prefer immutability wherever possible
 * Provide a protocol-like facility (and use it pervasively e.g. by
   supporting application of any object that supports a hypothetical
-  appliable protocol.
+  `<appliable>` protocol.
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
   procedure applications should Just Work.
 
