@@ -9,42 +9,33 @@ Pull requests and issue submissions are welcomed.
 
 ## Using I7t
 
-Clone this repository. Run `chibi-scheme`. Perform a `(load
-"i7t.scm")`. The following procedures of interest will now be
-available to you:
+Clone this repository and cd to its root directory. Run
+`chibi-scheme`. Evaluate `(import (scheme red) (thunknyc i7t))`. The
+following procedures of interest will now be available to you:
 
 * `parse-i7t source [index]`: Parse and return a single I7t object
   from the source (a string or `(chibi parse)` parse stream) at
   `index` or at the beginning if not specified.
-
 * `translate-i7t form`: Translate the I7t object into a Scheme
   S-expression suitable for evaluation.
-
 * `read-file-i7t filename`: Exhaustively parse file with name
   `filename` and return a list of I7t objects.
-
 * `expand-file-i7t filename`: Read I7t all expressions in `filename`
   and return a list of translated S-expressions.
-
 * `load-i7t filename`: Expand `filename` and evaluate each translated
   S-expression.
 
 ## Goals of I7t
 
 * Implement a reader that can be used as the basis of language development
-
 * Design and implement a series of special forms that allow Scheme to be
   written with the benefits of the enhanced reader.
-
 * Strongly embrace R7RS and bake Scheme Red (and Tangerine and Orange and...)
   types into the langue.
-
 * Prefer immutability wherever possible
-
 * Provide a protocol-like facility (and use it pervasively e.g. by
   supporting application of any object that supports a hypothetical
   appliable protocol.
-
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
   procedure applications should Just Work.
 
@@ -52,26 +43,19 @@ available to you:
 
 * `Define-proc` for single and multiple arities with nested vector
   dereferencing, `& rest-arguments` and `:as all-arguments` support
-
 * `Define`
-
 * `Quote` (and traditional `'foo` syntax)
-
 * `Test`
 
 * Procedure application allows strings, lists, vectors, and hash tables
   to be applied
-
 * `#([args ...] ...)` lambda form for single and multiple arities
 
 ## Notable missing features
 
 * `And`, `or`, etc.
-
 * `If` and `cond`
-
 * `Let`
-
 * Quasi-quoting
 
 ## A sample source file
