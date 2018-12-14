@@ -187,5 +187,5 @@ MIT License.
 
 ## Footnote
 
-0. <small id="f0"> Aside from JVM support, which, according to Taylor
-Campbell, is _the_ killer Clojure feature.</small> [↩](#a0)
+0. <a name="f0">Aside from JVM support, which, according to Taylor
+Campbell, is _the_ killer Clojure feature.</a> [↩](#a0)
