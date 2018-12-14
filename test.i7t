@@ -33,7 +33,7 @@
 (test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
 (test true (= (len "foo")
               (len '(0 1 2))
-              (len [0 1 2])
+              (len '[[a] [b] [c]])
               (len {:a 0 :b 1 :c 2})
               (len '#{green eggs ham})))
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
