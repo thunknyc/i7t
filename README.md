@@ -30,8 +30,14 @@ following procedures of interest will now be available to you:
 At the Chibi REPL you can evaluate I7t like this:
 
 ```
-(eval-i7t "(loop iter [i 0] (if (> i 10) i (iter (inc i))))") ;; => 11
-((eval-i7t "#([& xs] (apply + xs))") 1 2 3 4) ;; => 10
+> (eval-i7t "(loop iter [i 0] (if (> i 10) i (iter (inc i))))")
+11
+> ((eval-i7t "#([& xs] (apply + xs))") 1 2 3 4)
+10
+> (eval-i7t "(define-proc sum-of-squares [a b] (+ (* a a) (* b b)))")
+> (sum-of-squares 3 4)
+25
+>
 ```
 
 Or you can load and evalute files like this:
