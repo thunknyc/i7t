@@ -24,6 +24,8 @@ following procedures of interest will now be available to you:
   and return a list of translated S-expressions.
 * `load-i7t filename`: Expand `filename` and evaluate each translated
   S-expression.
+* `eval-i7t string`: Parse, translate, and evaluate `string`
+  containing an I7t form.
 
 ## Goals of I7t
 

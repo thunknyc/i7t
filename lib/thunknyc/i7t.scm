@@ -381,6 +381,11 @@
          (#f (error "Parse error"))
          (x (error (show #f "Unknown object " (written x))))))
 
+(define (eval-i7t s)
+  (let* ((parsed (parse-i7t s))
+         (translated (translate-i7t parsed)))
+    (eval translated)))
+
 (define (read-file-i7t filename)
   (let* ((stream (file->parse-stream filename))
          (i7t-exprs (parse-fold i7t-object cons '() stream 0)))
