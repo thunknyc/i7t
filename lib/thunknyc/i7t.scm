@@ -323,6 +323,16 @@
 (define-record-type <nil> (construct-nil) nil?)
 (define nil (construct-nil))
 
+(define-record-type <keyword>
+  (keyword name)
+  keyword?
+  (name keyword-name))
+
+(define string->keyword keyword)
+(define keyword->string keyword-name)
+(define keyword->symbol (lambda (k) (string->symbol (keyword-name k))))
+(define symbol->keyword (lambda (s) (keyword (symbol->string s))))
+
 (define borrowed-macros (apply set i7t-comparator
                                '(and or if
                                  test)))
@@ -349,25 +359,31 @@
          (('__LIST 'define-proc name ('__VEC a1 ...) e1 e2 ...)
           `(define ,name (lambda ,@(lambda-clause a1 e1 e2))))
 
+         ;; Lambda forms
          (('__LAMBDA ('__LIST ('__VEC a1s ...) e1s e2s ...) ...)
           `(match-lambda* ,@(map lambda-clause a1s e1s e2s)))
 
          (('__LAMBDA ('__VEC a1 ...) e1 e2 ...)
           `(lambda ,@(lambda-clause a1 e1 e2)))
 
+         ;; Quotation
          (('__LIST 'quote a)
           (enquoted (translate-i7t a)))
 
+         ;; Procedure application
          (('__LIST proc a1 ...)
           (if (should-quote?)
               `(list ,(translate-i7t proc) ,@(map translate-i7t a1))
               `((make-applicable ,(translate-i7t proc)) ,@(map translate-i7t a1))))
 
+         ;; Literals
          (('__VEC e1 ...)
           `(vector ,@(map translate-i7t e1)))
 
          (('__MAP e1 ...)
           `(hash-table i7t-comparator ,@(map translate-i7t e1)))
+
+         (('__KW name) `(keyword ,name))
 
          ((? symbol? sym) (if (should-quote?) `(quote  ,sym) sym))
          ((? number? num) num)

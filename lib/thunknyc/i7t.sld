@@ -4,7 +4,12 @@
    parse-i7t translate-i7t read-file-i7t expand-file-i7t load-i7t eval-i7t
 
    ;; support procs and values
-   nil nil? i7t-comparator make-applicable *-ref *-length *-drop
+   keyword keyword? string->keyword symbol->keyword
+   keyword->string keyword->symbol
+
+   nil nil? i7t-comparator *-ref *-length *-drop
+
+   make-applicable
 
    ;; handy procs
    inc dec
