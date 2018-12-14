@@ -7,14 +7,12 @@
    keyword keyword? string->keyword symbol->keyword
    keyword->string keyword->symbol
 
-   extend apply-protocol
+   extend apply-protocol protocol-proc-maybe
 
    ;; unsupported
    protocol-type-procs
 
    nil nil? i7t-comparator *-ref *-length *-drop
-
-   make-applicable
 
    ;; collection procs
    len get

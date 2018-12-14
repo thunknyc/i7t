@@ -303,14 +303,6 @@
 
            (x (error (show #f "No supported lambda for " x))))))
 
-(define (make-applicable procish)
-  (cond ((procedure? procish) procish)
-        ((or (string? procish) (vector? procish)
-             (list? procish) (hash-table? procish)
-             (set? procish))
-         (lambda args (apply *-ref procish args)))
-        (else (error (show #f "Non-applicable object " (written procish))))))
-
 (define i7t-quote-level (make-parameter 0))
 
 (define-syntax enquoted
@@ -403,7 +395,9 @@
          (('__LIST proc a1 ...)
           (if (should-quote?)
               `(list ,(translate-i7t proc) ,@(map translate-i7t a1))
-              `((make-applicable ,(translate-i7t proc)) ,@(map translate-i7t a1))))
+              `(apply-protocol 'core.applicable 'apply
+                               ,(translate-i7t proc)
+                               ,@(map translate-i7t a1))))
 
          ;; Literals
          (('__SET e1 ...)
@@ -474,20 +468,22 @@
                      (map-assoc protocol-map type
                                 (map-merge type-map proc-specs))))))
 
-(define (apply-protocol protocol proc-name object . args)
+(define (protocol-proc-maybe protocol proc-name object)
   (let* ((protocol-map (hash-table-ref/default
                         protocol-type-procs protocol (empty-map)))
          (type (type-of object))
          (type-map (hash-table-ref/default
-                    protocol-map (type-of object) (empty-map)))
-         (proc (hash-table-ref/default
-                type-map proc-name
-                (lambda args
-                  (error
-                   (show #f "Object " (written object)
-                         " of type " (written type)
-                         " does not support " proc-name
-                         " method of protocol " protocol))))))
+                    protocol-map type (empty-map))))
+    (hash-table-ref/default type-map proc-name #f)))
+
+(define (apply-protocol protocol proc-name object . args)
+  (let* ((proc (or (protocol-proc-maybe protocol proc-name object)
+                   (lambda args
+                     (error
+                      (show #f "Object " (written object)
+                            " of type " (written (type-of object))
+                            " does not support " proc-name
+                            " method of protocol " protocol))))))
     (apply proc object args)))
 
 (define (len col)
@@ -496,26 +492,59 @@
 (define (get col i)
   (apply-protocol 'core.col 'ref col i))
 
+;; Collection
+
 (extend (type-of (empty-map)) 'core.col
         (hash-table i7t-comparator
-                    'apply *-ref
                     'length hash-table-size
                     'ref *-ref))
 
 (extend (type-of #()) 'core.col
         (hash-table i7t-comparator
-                    'apply *-ref
                     'length vector-length
                     'ref *-ref))
 
 (extend (type-of (cons 'a 'b)) 'core.col
         (hash-table i7t-comparator
-                    'apply *-ref
                     'length length
                     'ref *-ref))
 
 (extend (type-of "") 'core.col
         (hash-table i7t-comparator
-                    'apply *-ref
                     'length string-length
                     'ref *-ref))
+
+(extend (type-of (set i7t-comparator)) 'core.col
+        (hash-table i7t-comparator
+                    'length set-size
+                    'ref *-ref))
+
+;; Applicable
+
+(extend (type-of (empty-map)) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply *-ref))
+
+(extend (type-of #()) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply *-ref))
+
+(extend (type-of (cons 'a 'b)) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply *-ref))
+
+(extend (type-of "") 'core.applicable
+        (hash-table i7t-comparator
+                    'apply *-ref))
+
+(extend (type-of (set i7t-comparator)) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply *-ref))
+
+(extend (type-of +) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply (lambda (proc . xs) (apply proc xs))))
+
+(extend (type-of show) 'core.applicable
+        (hash-table i7t-comparator
+                    'apply (lambda (proc . xs) (apply proc xs))))

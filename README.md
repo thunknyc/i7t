@@ -5,6 +5,12 @@ and embraces an S-expression reader based on Clojure's (and also
 therefore EDN's) syntax. It is hosted atop Alex Shinn's [Chibi
 Scheme](https://github.com/ashinn/chibi-scheme).
 
+Among other things, I7n provides a protocol facility and uses it
+pervasively e.g. by supporting application of any object that supports
+the `core.appliable` / `apply` method or finding the length of any
+collection which supports the `core.col` / `length` method via the
+`len` procedure.
+
 Pull requests and issue submissions are welcomed.
 
 ## Using I7t
@@ -44,8 +50,8 @@ Or you can load and evalute files like this:
 
 ```
 > (load-i7t "test.i7t")
-Test I7t: ..........
-10 out of 10 (100.0%) tests passed in 0.018583059310913086 seconds.
+Test I7t: ...........
+11 out of 11 (100.0%) tests passed in 0.030119895935058594 seconds.
 >
 ```
 
@@ -59,9 +65,6 @@ Have fun!
 * Strongly embrace R7RS and bake Scheme Red (and Tangerine and Orange and...)
   types into the language.
 * Presume immutability.
-* Provide a protocol-like facility (and use it pervasively e.g. by
-  supporting application of any object that supports a hypothetical
-  `<appliable>` protocol.
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
   procedure applications should Just Work.
 
@@ -131,6 +134,11 @@ The file `test.i7t`:
 (test-begin "Test I7t")
 (test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
 (test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
+(test true (= (len "foo")
+              (len '(0 1 2))
+              (len [0 1 2])
+              (len {:a 0 :b 1 :c 2})
+              (len '#{green eggs ham})))
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
 (test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
 (test '((snafu blorg)) (pick v1 2))
