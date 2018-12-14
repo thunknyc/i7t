@@ -390,6 +390,9 @@
               `((make-applicable ,(translate-i7t proc)) ,@(map translate-i7t a1))))
 
          ;; Literals
+         (('__SET e1 ...)
+          `(set i7t-comparator ,@(map translate-i7t e1)))
+
          (('__VEC e1 ...)
           `(vector ,@(map translate-i7t e1)))
 

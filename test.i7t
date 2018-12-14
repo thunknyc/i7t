@@ -1,3 +1,4 @@
+(define s1 #{0 1 2 3 4 5})
 (define v1 '[foo bar (snafu blorg)])
 (define beverages '{scotch laphroig rye bulleit
                     vodka no-thanks beer pilsner
@@ -34,4 +35,6 @@
 (test '(laphroig tap) (drink-ingredients beverages))
 (test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
 (test :yo (cond false 12 (= (dec 1) 0) :yo))
+(test nil (s1 6))
+(test 5 (s1 5))
 (test-end)

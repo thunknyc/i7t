@@ -49,8 +49,8 @@ following procedures of interest will now be available to you:
 * `Define`
 * `Quote` (and traditional `'foo` syntax)
 * `Test` from `(chibi test)`
-* Procedure application allows strings, lists, vectors, and hash tables
-  to be applied
+* Procedure application allows strings, lists, vectors, sets, and hash
+  tables to be applied
 * `#([args ...] ...)` lambda form for single and multiple arities
 
 ## Notable missing features
@@ -73,6 +73,7 @@ following procedures of interest will now be available to you:
 The file `test.i7t`:
 
 ```
+(define s1 #{0 1 2 3 4 5})
 (define v1 '[foo bar (snafu blorg)])
 (define beverages '{scotch laphroig rye bulleit
                     vodka no-thanks beer pilsner
@@ -109,6 +110,8 @@ The file `test.i7t`:
 (test '(laphroig tap) (drink-ingredients beverages))
 (test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
 (test :yo (cond false 12 (= (dec 1) 0) :yo))
+(test nil (s1 6))
+(test 5 (s1 5))
 (test-end)
 ```
 
