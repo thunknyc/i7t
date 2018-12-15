@@ -278,7 +278,7 @@
   (ast->sexp (optimize (analyze sexp))))
 
 (define (lambda-clause args expr exprs)
-  (let ((body (cons (translate-i7t expr) (map translate-i7t exprs))))
+  (let ((body (map translate-i7t (cons expr exprs))))
     (match args
 
            (('& rest)
@@ -378,13 +378,13 @@
          ;; Let (let* in Scheme)
          (('__LIST 'let ('__VEC nvs ...) e es ...)
           (let ((namevals (map-namekey-args nvs))
-                (body (cons (translate-i7t e) (map translate-i7t es))))
+                (body (map translate-i7t (cons e es))))
             `(let* (,@namevals) ,@body)))
 
          ;; Loop (loop in Clojure, named let in Scheme)
          (('__LIST 'loop recur ('__VEC nvs ...) e es ...)
           (let ((namevals (map-namekey-args nvs))
-                (body (cons (translate-i7t e) (map translate-i7t es))))
+                (body (map translate-i7t (cons e es))))
             `(let ,recur (,@namevals) ,@body)))
 
          ;; Quotation
