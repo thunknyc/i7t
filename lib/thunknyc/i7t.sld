@@ -1,7 +1,8 @@
 (define-library (thunknyc i7t)
   (export
    ;; meta procs
-   parse-i7t translate-i7t read-file-i7t expand-file-i7t load-i7t eval-i7t i7t
+   parse-i7t translate-i7t read-file-i7t expand-file-i7t load-i7t
+   eval-i7t i7t edn-str
 
    ;; support procs and values
    keyword keyword? string->keyword symbol->keyword
