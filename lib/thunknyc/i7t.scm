@@ -1,139 +1,5 @@
 (define i7t-comparator (make-default-comparator))
 
-(define sym-char-set
-  (let ((cs (char-set-delete char-set:graphic
-                             #\# #\( #\) #\[ #\] #\{ #\} #\' #\` #\,)))
-    cs))
-
-(define post-sign-sym-char-set
-  (let ((cs (char-set-delete sym-char-set
-                             #\0 #\1 #\2 #\3 #\4 #\5
-                             #\6 #\7 #\8 #\9 #\.)))
-    cs))
-
-(define first-sym-char-set
-  (let ((cs (char-set-delete sym-char-set #\+ #\-
-                             #\0 #\1 #\2 #\3 #\4 #\5
-                             #\6 #\7 #\8 #\9 #\.)))
-    cs))
-
-(define (in-char-set? cs)
-  (lambda (ch) (char-set-contains? cs ch)))
-
-(define i7ttrue
-  (list '__TRUE))
-
-(define i7tfalse
-  (list '__FALSE))
-
-(define i7tnil
-  (list '__NIL))
-
-(define (i7tlambda . o)
-  (apply list '__LAMBDA o))
-
-(define (i7tmap . o)
-  (apply list '__MAP o))
-
-(define (i7tvector . o)
-  (apply list '__VEC o))
-
-(define (i7tset . o)
-  (apply list '__SET o))
-
-(define (i7tlist . o)
-  (apply list '__LIST o))
-
-(define (i7tkw . o)
-  (apply list '__KW o))
-
-(define i7t-object-grammar
-  (grammar
-   i7t-object
-   (i7t-discardable ((: "#_" ,i7t-space ,i7t-datum ,i7t-space)))
-
-   (i7t-space ((* (or ,(parse-char char-whitespace?) #\, ,i7t-discardable))))
-
-   (i7t-num ((or (-> n (: ,(parse-char char-numeric?)
-                          (* (or ,(parse-char char-numeric?)
-                                 #\. #\- #\+ #\e #\E))))
-                 (-> n (: (or  #\. #\- #\+)
-                          (+ (or ,(parse-char char-numeric?)
-                                 #\. #\- #\+ #\e #\E)))))
-             (string->number (list->string (apply cons n)))))
-
-   (i7t-quoted
-    ((: #\' (-> d ,i7t-datum))
-     (i7tlist 'quote d)))
-
-   (i7t-keyword
-    ((: #\: (-> s (+ ,(parse-char sym-char-set))))
-     (i7tkw (apply string s))))
-
-   (i7t-sym
-    ((-> s (: (or #\+ #\-)
-              (+ ,(parse-char post-sign-sym-char-set))
-              (* ,(parse-char sym-char-set))))
-     (apply string (car s) (concatenate (cdr s))))
-    ((-> s (or #\+ #\-)) (string s))
-    ((-> s (: ,(parse-char first-sym-char-set)
-              (* ,(parse-char sym-char-set))))
-     (apply string (car s) (cadr s))))
-
-   (i7t-str ((: ,(parse-char #\")
-                (-> s (* ,(parse-not-char #\")))
-                ,(parse-char #\"))
-             (list->string s)))
-
-   (i7t-seq-el ((: ,i7t-space (-> el ,i7t-datum)) el))
-
-   (i7t-lambda ((: "#(" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                   (-> els (* ,i7t-seq-el)) ,i7t-space ")")
-                (apply i7tlambda (cons el els)))
-               ((: "#(" ,i7t-space ")") (i7tlambda)))
-
-   (i7t-set ((: "#{" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-seq-el)) ,i7t-space "}")
-             (apply i7tset el els))
-            ((: "#{" ,i7t-space "}") (i7tset)))
-
-   (i7t-vec ((: "[" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-seq-el)) ,i7t-space "]")
-             (apply i7tvector el els))
-            ((: "[" ,i7t-space "]") (i7tvector)))
-
-   (i7t-list ((: "(" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                 (-> els (* ,i7t-seq-el)) ,i7t-space ")")
-              (apply i7tlist el els))
-             ((: "(" ,i7t-space ")") (i7tlist)))
-
-   (i7t-map-el ((: ,i7t-space (-> k ,i7t-datum) ,i7t-space
-                   ,i7t-space (-> v ,i7t-datum)) (list k v)))
-
-   (i7t-map ((: "{" ,i7t-space (-> k ,i7t-datum) ,i7t-space
-                ,i7t-space (-> v ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-map-el)) ,i7t-space "}")
-             (apply i7tmap k v (concatenate els)))
-            ((: "{" ,i7t-space "}") (i7tmap)))
-
-   (i7t-atom ("true" i7ttrue)
-             ("false" i7tfalse)
-             ("nil" i7tnil)
-             ((-> k ,i7t-keyword) k)
-             ((-> n ,i7t-num) n)
-             ((-> s ,i7t-str) s)
-             ((-> s ,i7t-sym) (string->symbol s)))
-
-   (i7t-datum ((or ,i7t-quoted ,i7t-atom
-                   ,i7t-vec ,i7t-list ,i7t-map
-                   ,i7t-set ,i7t-sym ,i7t-lambda)))
-
-   (i7t-object ((: ,i7t-space (-> o ,i7t-datum) ,i7t-space) o))))
-
-(define (parse-i7t source . o)
-  (let ((index (if (pair? o) (car o) 0)))
-    (parse i7t-object-grammar source index)))
-
 (define (nil? x) (equal? nil))
 
 (define (inc x) (+ x 1))
@@ -157,30 +23,6 @@
        ((< i index) (loop (+ i 1) (cons (vector-ref v i) xs) ys))
        (else (loop (+ i 1) xs (cons (vector-ref v i) ys)))))))
 
-(define (*-ref col i . o)
-  (let ((default (if (pair? o) (car o) nil)))
-    (cond ((string? col)
-           (let ((n (string-length col)))
-             (cond ((and (> i -1) (< i n))
-                    (string-ref col i))
-                   (else default))))
-          ((list? col)
-           (let ((n (length col)))
-             (cond ((and (> i -1) (< i n))
-                    (list-ref col i))
-                   (else default))))
-          ((vector? col)
-           (let ((n (vector-length col)))
-             (cond ((and (> i -1) (< i n))
-                    (vector-ref col i))
-                   (else default))))
-          ((hash-table? col)
-           (hash-table-ref/default col i default))
-          ((set? col)
-           (cond ((set-contains? col i) i)
-                 (else nil)))
-         (else (error (show #f "Unknown refferable " col))))))
-
 (define (*-drop col i)
   (cond ((list? col) (drop col i))
         ((vector? col) (vector-drop col i))
@@ -195,7 +37,7 @@
 (define (*-empty? col)
   (= (*-length col) 0))
 
-(define (arg-accessor a i) `(*-ref ,a ,i))
+(define (arg-accessor a i) `(get ,a ,i))
 (define (rest-accessor a skip) `(*-drop ,a ,skip))
 
 (define (positional-args arg-names)
@@ -432,11 +274,6 @@
 (define (i7t . els)
   (eval-i7t (apply show #f els)))
 
-(define (read-file-i7t filename)
-  (let* ((stream (file->parse-stream filename))
-         (i7t-exprs (parse-fold i7t-object-grammar cons '() stream 0)))
-    (reverse! i7t-exprs)))
-
 (define (expand-file-i7t filename)
   (map translate-i7t (read-file-i7t filename)))
 
@@ -463,8 +300,9 @@
 
 (define (extend-1 type protocol proc-spec-list)
   (let* ((proc-specs (apply hash-table i7t-comparator proc-spec-list))
-         (protocol-map (*-ref protocol-type-procs protocol (empty-map)))
-         (type-map (*-ref protocol-map type (empty-map))))
+         (protocol-map (hash-table-ref/default
+                        protocol-type-procs protocol (empty-map)))
+         (type-map (hash-table-ref/default protocol-map type (empty-map))))
     (set! protocol-type-procs
           (map-assoc protocol-type-procs protocol
                      (map-assoc protocol-map type
@@ -499,8 +337,8 @@
 (define (len col)
   (apply-protocol 'core.col 'length col))
 
-(define (get col i)
-  (apply-protocol 'core.col 'ref col i))
+(define (get col i . o)
+  (apply apply-protocol 'core.col 'ref col i o))
 
 ;; I/O implementations
 
@@ -514,43 +352,82 @@
   (show #f (written s)))
 
 ;; Integer
-(extend (type-of 42)
+(extend <integer>
         'core.io `(->str ,(lambda (x) (show #f x))))
 
 ;; Hash-table
-(extend (type-of (empty-map))
-        'core.col `(length ,hash-table-size ref ,*-ref)
-        'core.applicable `(apply ,*-ref)
-        'core.io `(->str ,hash->str))
+
+(let ((ref (lambda (col i . o)
+             (let ((default (if (pair? o) (car o) nil)))
+               (hash-table-ref/default col i default)))))
+
+  (extend <hash-table>
+          'core.col `(length ,hash-table-size ref ,ref)
+          'core.io `(->str ,hash->str)
+          'core.applicable `(apply ,ref)))
 
 ;; Vector
-(extend (type-of #())
-        'core.col `(length ,vector-length ref ,*-ref)
-        'core.applicable `(apply ,*-ref))
+(let ((ref (lambda (col i . o)
+             (let ((default (if (pair? o) (car o) nil))
+                   (n (vector-length col)))
+               (cond ((and (> i -1) (< i n))
+                      (vector-ref col i))
+                     (else default))))))
+
+  (extend <vector>
+         'core.col `(length ,vector-length ref ,ref)
+         'core.applicable `(apply ,ref)))
 
 ;; Pair
-(extend (type-of (cons 'a 'b))
-        'core.col `(length ,length ref ,*-ref)
-        'core.applicable `(apply ,*-ref))
+(let ((ref (lambda (col i . o)
+             (let ((default (if (pair? o) (car o) nil))
+                   (n (length col)))
+               (cond ((and (> i -1) (< i n))
+                      (list-ref col i))
+                     (else default))))))
+
+    (extend <pair>
+         'core.col `(length ,length ref ,ref)
+         'core.applicable `(apply ,ref)))
 
 ;; String
-(extend (type-of "")
-        'core.col `(length ,string-length ref ,*-ref)
-        'core.applicable `(apply ,*-ref)
-        'core.io `(->str ,string->str))
+(let ((ref (lambda (col i . o)
+             (let ((default (if (pair? o) (car o) nil))
+                   (n (string-length col)))
+               (cond ((and (> i -1) (< i n))
+                      (string-ref col i))
+                     (else default))))))
+
+    (extend <string>
+         'core.col `(length ,string-length ref ,ref)
+         'core.applicable `(apply ,ref)
+         'core.io `(->str ,string->str)))
 
 ;; Set
-(extend (type-of (set i7t-comparator))
-        'core.col `(length ,set-size ref ,*-ref)
-        'core.applicable `(apply ,*-ref))
+(let ((ref (lambda (col i . o)
+             (let ((default (if (pair? o) (car o) nil)))
+               (cond ((set-contains? col i) i)
+                     (else default))))))
+
+  (extend <set>
+          'core.col `(length ,set-size ref ,ref)
+          'core.applicable `(apply ,ref)))
 
 ;; Opcode
-(extend (type-of +)
+(extend <opcode>
         'core.applicable `(apply ,(lambda (proc . xs) (apply proc xs))))
 
 ;; Procedure
-(extend (type-of show)
+(extend <procedure>
         'core.applicable `(apply ,(lambda (proc . xs) (apply proc xs))))
+
+;; Keyword
+(let ((ref (lambda (i col . o)
+             (let ((default (if (pair? o) (car o) nil))) (get col i)))))
+
+ (extend <keyword> 'core.applicable `(apply ,ref)))
+
+;; Writing
 
 (define (edn-str x)
   (apply-protocol 'core.io '->str x))
