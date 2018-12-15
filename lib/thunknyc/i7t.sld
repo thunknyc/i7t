@@ -22,7 +22,7 @@
    <opcode> <procedure> <set> <string> <pair> <vector> <hash-table>
    <integer> <flonum> <bignum> <ratio> <complex>
 
-   <keyword>
+   <nil> <keyword>
 
    ;; handy procs
    inc dec chunk identity
