@@ -85,7 +85,7 @@ Have fun!
 ## Notable missing features
 
 * Quasi-quoting
-* A way to `write` or `display` values aside from as Scheme values
+* `Edn-str' serialized little aside from hashes, ints, and strings
 
 ## New types
 
