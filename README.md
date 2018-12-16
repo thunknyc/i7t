@@ -61,7 +61,8 @@ Have fun!
 
 One goal of I7t is to implement a reader that can be used as the basis
 of data parsing or language development. The reader is available as
-library `(thunknyc i7t reader)`.
+library `(thunknyc i7t reader)`. If the reader fails to read a valid
+Clojure source file please open an issue.
 
 Another goal is to design and implement a language atop that
 reader. Subgoals of this effort:

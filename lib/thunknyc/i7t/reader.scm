@@ -1,6 +1,7 @@
 (define sym-char-set
   (let ((cs (char-set-delete char-set:graphic
-                             #\# #\( #\) #\[ #\] #\{ #\} #\' #\` #\, #\@ #\^)))
+                             #\# #\( #\) #\[ #\] #\{ #\}
+                             #\' #\` #\, #\@ #\^ #\;)))
     cs))
 
 (define post-sign-sym-char-set
@@ -14,6 +15,11 @@
                              #\+ #\-
                              #\0 #\1 #\2 #\3 #\4 #\5
                              #\6 #\7 #\8 #\9)))
+    cs))
+
+(define comment-char-set
+  (let ((cs (char-set-delete char-set:full
+                             #\newline #\return #\x000a)))
     cs))
 
 (define i7ttrue
@@ -60,7 +66,10 @@
    object
    (discardable ((: "#_" ,space ,datum ,space)))
 
-   (space ((* (or ,(parse-char char-whitespace?) #\, ,discardable))))
+   (space ((* (or ,(parse-char char-whitespace?)
+                  #\,
+                  ,discardable
+                  (: #\; (* ,comment-char-set))))))
 
    (num ((: (-> sign (or #\- #\+))
             (-> digit1 ,(parse-char char-numeric?))

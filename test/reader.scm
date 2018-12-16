@@ -21,6 +21,8 @@
 (test-i7t 3+4i "3+4i")
 (test-i7t 42 "42")
 (test-i7t 42.3 "42.3")
+(test-i7t 42 "; a comment\n42")
+(test-i7t (i7tvector 0 1 2 3) "[0 ;; another comment\r1 2 3]")
 (test-i7t 'e20 "e20")
 (test-i7t (i7tvector) "[]")
 (test-i7t (i7tvector 0 1 2 3 42) "[0 1 2 3 42]")
