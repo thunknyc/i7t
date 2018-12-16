@@ -16,9 +16,6 @@
                              #\6 #\7 #\8 #\9)))
     cs))
 
-(define (in-char-set? cs)
-  (lambda (ch) (char-set-contains? cs ch)))
-
 (define i7ttrue
   (list '__TRUE))
 
