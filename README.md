@@ -49,9 +49,9 @@ At the Chibi REPL you can evaluate I7t like this:
 Or you can load and evalute files like this:
 
 ```
-> (load-i7t "test.i7t")
-Test I7t: ...........
-11 out of 11 (100.0%) tests passed in 0.030119895935058594 seconds.
+> (load-i7t "test/core.i7t")
+Testing I7t language: ............
+12 out of 12 (100.0%) tests passed in 0.04197406768798828 seconds.
 >
 ```
 
@@ -59,14 +59,19 @@ Have fun!
 
 ## Goals of I7t
 
-* Implement a reader that can be used as the basis of language development
-* Design and implement a series of special forms that allow Scheme to be
-  written with the benefits of the enhanced reader.
-* Strongly embrace R7RS and bake Scheme Red (and Tangerine and Orange and...)
-  types into the language.
-* Presume immutability.
+One goal of I7t is to implement a reader that can be used as the basis
+of data parsing or language development. The reader is available as
+library `(thunknyc i7t reader)`.
+
+Another goal is to design and implement a language atop that
+reader. Subgoals of this effort:
+
+* Embrace the increased expressive power of EDN to implement language forms that increase the concision, expressiveness, and readability of written code
+* Strongly embrace R7RS and bake in type from the Red (and Tangerine and Orange and...)
+  standardization processes
+* Presume immutability
 * Maintain compatibility with Scheme code i.e. Scheme->I7t and I7t->Scheme
-  procedure applications should Just Work.
+  procedure applications should Just Work
 
 ## Currently supported special forms
 
@@ -85,7 +90,7 @@ Have fun!
 ## Notable missing features
 
 * Quasi-quoting
-* `Edn-str' serialized little aside from hashes, ints, and strings
+* Serialization via `Edn-str' does not support most types at the moment
 
 ## New types
 
@@ -188,6 +193,22 @@ availability of these forms, especially destructuring in the context
 of procedure argument declarations and in let and other binding forms,
 most Clojure source files productively make use of these language
 features.
+
+As another example, consider the `lambda` form. In Clojure, the lambda
+form (named `fn`) allows the function to be named by writing e.g. `(fn
+loop [arg1 arg2] ...)`. It would be a useful to be able to do this in
+Scheme as well, but a cascade of design decisions and limitations
+makes this feature impossible. A transliteration of this form into
+Scheme yields `(lambda loop #(arg1 arg2) ...)`, which is meaningful: a
+list of the procedure's arguments are bound to `loop` and then `#(arg1
+arg2)` is evaluated. Clojure's way of doing this is to write `(fn [&
+args] ...)`, which allows the original Clojure form above to be
+recognized as a name procedure definition. Doing this in Scheme would
+require adding parenthses or supporting `(lambda (. rest) ...)`, which
+is nonsensical in Scheme. The sad part of this is that thanks to
+Scheme's support for tail call optimization, this facility would be
+far more useful in Scheme than it is in Clojure, which sets up the
+lambda as the target of enclosed `recur` calls.
 
 ## Licensing
 
