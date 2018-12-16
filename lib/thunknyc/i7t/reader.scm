@@ -1,6 +1,6 @@
 (define sym-char-set
   (let ((cs (char-set-delete char-set:graphic
-                             #\# #\( #\) #\[ #\] #\{ #\} #\' #\` #\,)))
+                             #\# #\( #\) #\[ #\] #\{ #\} #\' #\` #\, #\@ #\^)))
     cs))
 
 (define post-sign-sym-char-set
@@ -10,7 +10,8 @@
     cs))
 
 (define first-sym-char-set
-  (let ((cs (char-set-delete sym-char-set #\+ #\-
+  (let ((cs (char-set-delete sym-char-set
+                             #\+ #\-
                              #\0 #\1 #\2 #\3 #\4 #\5
                              #\6 #\7 #\8 #\9)))
     cs))
@@ -47,6 +48,15 @@
 
 (define (i7ttagged tag v)
   `(__TAGGED ,tag ,v))
+
+(define (i7tannotated meta v)
+  `(__ANNOTATED ,meta ,v))
+
+(define (i7tdereffed v)
+  `(__DEREFFED ,v))
+
+(define (i7tvarquoted v)
+  `(__VARQUOTED ,v))
 
 (define i7t-object-grammar
   (grammar/unmemoized
@@ -130,11 +140,19 @@
          ((-> s ,str) s)
          ((-> s ,sym)))
 
+   (annotated ((: #\^ ,space (-> m ,datum) ,space (-> val ,datum))
+               (i7tannotated m val)))
+
+   (dereffed ((: #\@ ,space (-> name ,sym)) (i7tdereffed name)))
+
+   (varquoted ((: "#'" ,space (-> name ,sym)) (i7tvarquoted name)))
+
    (tagged ((: #\# ,space (-> tag ,sym)
                ,space (-> datum ,datum))
             (i7ttagged tag datum)))
 
-   (datum ((or ,tagged ,quoted ,atom
+   (datum ((or ,annotated ,varquoted ,dereffed
+               ,tagged ,quoted ,atom
                ,vec ,seq ,mapping
                ,set ,sym ,lambda)))
 

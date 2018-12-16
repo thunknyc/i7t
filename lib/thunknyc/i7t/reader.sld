@@ -1,7 +1,7 @@
 (define-library (thunknyc i7t reader)
   (export parse-i7t read-file-i7t
 
-          i7ttagged
+          i7ttagged i7tannotated i7tdereffed i7tvarquoted
           i7tvector i7tlist i7tmap i7tkw i7tset i7tlambda i7tnil
           i7ttrue i7tfalse)
 
