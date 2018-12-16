@@ -50,31 +50,31 @@
 
 (define i7t-object-grammar
   (grammar/unmemoized
-   i7t-object
-   (i7t-discardable ((: "#_" ,i7t-space ,i7t-datum ,i7t-space)))
+   object
+   (discardable ((: "#_" ,space ,datum ,space)))
 
-   (i7t-space ((* (or ,(parse-char char-whitespace?) #\, ,i7t-discardable))))
+   (space ((* (or ,(parse-char char-whitespace?) #\, ,discardable))))
 
-   (i7t-num ((: (-> sign (or #\- #\+))
-                (-> digit1 ,(parse-char char-numeric?))
-                (-> digits (* (or ,(parse-char char-numeric?)
-                                  #\. #\- #\+ #\e #\E #\i #\/))))
-             (string->number (apply string sign digit1 digits)))
+   (num ((: (-> sign (or #\- #\+))
+            (-> digit1 ,(parse-char char-numeric?))
+            (-> digits (* (or ,(parse-char char-numeric?)
+                              #\. #\- #\+ #\e #\E #\i #\/))))
+         (string->number (apply string sign digit1 digits)))
 
-            ((: (-> digit1 ,(parse-char char-numeric?))
-                (-> digits (* (or ,(parse-char char-numeric?)
-                                  #\. #\- #\+ #\e #\E #\i #\/))))
-             (string->number (apply string digit1 digits))))
+        ((: (-> digit1 ,(parse-char char-numeric?))
+            (-> digits (* (or ,(parse-char char-numeric?)
+                              #\. #\- #\+ #\e #\E #\i #\/))))
+         (string->number (apply string digit1 digits))))
 
-   (i7t-quoted
-    ((: #\' (-> d ,i7t-datum))
+   (quoted
+    ((: #\' (-> d ,datum))
      (i7tlist 'quote d)))
 
-   (i7t-keyword
+   (keyword
     ((: #\: (-> s (+ ,(parse-char sym-char-set))))
      (i7tkw (apply string s))))
 
-   (i7t-sym
+   (sym
     ((-> s (: (or #\+ #\-)
               (+ ,(parse-char post-sign-sym-char-set))
               (* ,(parse-char sym-char-set))))
@@ -86,59 +86,59 @@
               (* ,(parse-char sym-char-set))))
      (string->symbol (apply string (car s) (cadr s)))))
 
-   (i7t-str ((: ,(parse-char #\")
-                (-> s (* ,(parse-not-char #\")))
-                ,(parse-char #\"))
-             (list->string s)))
+   (str ((: ,(parse-char #\")
+            (-> s (* ,(parse-not-char #\")))
+            ,(parse-char #\"))
+         (list->string s)))
 
-   (i7t-seq-el ((: ,i7t-space (-> el ,i7t-datum)) el))
+   (seq-el ((: ,space (-> el ,datum)) el))
 
-   (i7t-lambda ((: "#(" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                   (-> els (* ,i7t-seq-el)) ,i7t-space ")")
-                (apply i7tlambda (cons el els)))
-               ((: "#(" ,i7t-space ")") (i7tlambda)))
+   (lambda ((: "#(" ,space (-> el ,datum) ,space
+               (-> els (* ,seq-el)) ,space ")")
+            (apply i7tlambda (cons el els)))
+     ((: "#(" ,space ")") (i7tlambda)))
 
-   (i7t-set ((: "#{" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-seq-el)) ,i7t-space "}")
-             (apply i7tset el els))
-            ((: "#{" ,i7t-space "}") (i7tset)))
+   (set ((: "#{" ,space (-> el ,datum) ,space
+            (-> els (* ,seq-el)) ,space "}")
+         (apply i7tset el els))
+        ((: "#{" ,space "}") (i7tset)))
 
-   (i7t-vec ((: "[" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-seq-el)) ,i7t-space "]")
-             (apply i7tvector el els))
-            ((: "[" ,i7t-space "]") (i7tvector)))
+   (vec ((: "[" ,space (-> el ,datum) ,space
+            (-> els (* ,seq-el)) ,space "]")
+         (apply i7tvector el els))
+        ((: "[" ,space "]") (i7tvector)))
 
-   (i7t-list ((: "(" ,i7t-space (-> el ,i7t-datum) ,i7t-space
-                 (-> els (* ,i7t-seq-el)) ,i7t-space ")")
-              (apply i7tlist el els))
-             ((: "(" ,i7t-space ")") (i7tlist)))
+   (seq ((: "(" ,space (-> el ,datum) ,space
+            (-> els (* ,seq-el)) ,space ")")
+         (apply i7tlist el els))
+        ((: "(" ,space ")") (i7tlist)))
 
-   (i7t-map-el ((: ,i7t-space (-> k ,i7t-datum) ,i7t-space
-                   ,i7t-space (-> v ,i7t-datum)) (list k v)))
+   (mapping-el ((: ,space (-> k ,datum) ,space
+                   ,space (-> v ,datum)) (list k v)))
 
-   (i7t-map ((: "{" ,i7t-space (-> k ,i7t-datum) ,i7t-space
-                ,i7t-space (-> v ,i7t-datum) ,i7t-space
-                (-> els (* ,i7t-map-el)) ,i7t-space "}")
+   (mapping ((: "{" ,space (-> k ,datum) ,space
+                ,space (-> v ,datum) ,space
+                (-> els (* ,mapping-el)) ,space "}")
              (apply i7tmap k v (concatenate els)))
-            ((: "{" ,i7t-space "}") (i7tmap)))
+            ((: "{" ,space "}") (i7tmap)))
 
-   (i7t-atom ("true" i7ttrue)
-             ("false" i7tfalse)
-             ("nil" i7tnil)
-             ((-> k ,i7t-keyword) k)
-             ((-> ds ,i7t-num))
-             ((-> s ,i7t-str) s)
-             ((-> s ,i7t-sym)))
+   (atom ("true" i7ttrue)
+         ("false" i7tfalse)
+         ("nil" i7tnil)
+         ((-> k ,keyword) k)
+         ((-> ds ,num))
+         ((-> s ,str) s)
+         ((-> s ,sym)))
 
-   (i7t-tagged ((: #\# ,i7t-space (-> tag ,i7t-sym)
-                   ,i7t-space (-> datum ,i7t-datum))
-                (i7ttagged tag datum)))
+   (tagged ((: #\# ,space (-> tag ,sym)
+               ,space (-> datum ,datum))
+            (i7ttagged tag datum)))
 
-   (i7t-datum ((or ,i7t-tagged ,i7t-quoted ,i7t-atom
-                   ,i7t-vec ,i7t-list ,i7t-map
-                   ,i7t-set ,i7t-sym ,i7t-lambda)))
+   (datum ((or ,tagged ,quoted ,atom
+               ,vec ,seq ,mapping
+               ,set ,sym ,lambda)))
 
-   (i7t-object ((: ,i7t-space (-> o ,i7t-datum) ,i7t-space) o))))
+   (object ((: ,space (-> o ,datum) ,space) o))))
 
 (define (parse-i7t source . o)
   (let ((index (if (pair? o) (car o) 0)))
