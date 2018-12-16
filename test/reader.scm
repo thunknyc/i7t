@@ -13,7 +13,6 @@
 (test-i7t '|.| ".")
 (test-i7t '|..| "..")
 (test-i7t '|...| "...")
-(test-i7t '|..| "..")
 (test-i7t '|.1| ".1")                   ; A symbol, not a number in EDN/Clojure
 (test-i7t '|+.1| "+.1")                 ; Ditto
 (test-i7t '|->| "->")
