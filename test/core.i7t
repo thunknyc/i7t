@@ -28,7 +28,7 @@
 (define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
   (list s w 'bevs-length (*-length bevs)))
 
-(test-begin "Testing I7t")
+(test-begin "Testing I7t language")
 (test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
 (test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
 (test true (= (len "foo")
@@ -44,4 +44,5 @@
 (test :yo (cond false 12 (= (dec 1) 0) :yo))
 (test nil (s1 6))
 (test 5 (s1 5))
+(test 42 ((#([] #([a b] (+ a b)))) 1 41))
 (test-end)

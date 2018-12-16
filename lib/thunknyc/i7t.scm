@@ -26,13 +26,13 @@
 (define (*-drop col i)
   (cond ((list? col) (drop col i))
         ((vector? col) (vector-drop col i))
-        (else (error (show #f "Unknown sequential " col)))))
+        (else (error "Unknown sequential" col))))
 
 (define (*-length col)
   (cond ((list? col) (length col))
         ((vector? col) (vector-length col))
         ((hash-table? col) (hash-table-size col))
-        (else (error (show #f "Unknown collection " col)))))
+        (else (error "Unknown collection" col))))
 
 (define (*-empty? col)
   (= (*-length col) 0))
@@ -89,7 +89,7 @@
           (make-bindings (map-namekey-args nks) '_ all accessor bindings))
          (('__MAP nks ...)
           (make-bindings (map-namekey-args nks) '_ '_ accessor bindings))
-         (x (error (show #f "No matching destructuring for " x)))))
+         (x (error "No matching destructuring" x))))
 
 (define (make-args n)
   (map (lambda (i) (string->symbol (show #f "__arg" i))) (iota n)))
@@ -144,7 +144,7 @@
            (()
             `(() ((build-lambda '() '_ '_ body))))
 
-           (x (error (show #f "No supported lambda for " x))))))
+           (x (error "Unsupported argument specification" x)))))
 
 (define i7t-quote-level (make-parameter 0))
 
@@ -218,6 +218,9 @@
          (('__LAMBDA ('__VEC a1 ...) e1 e2 ...)
           `(lambda ,@(lambda-clause a1 e1 e2)))
 
+         (('__LAMBDA as ...)
+          (error "Malformed lambda" form))
+
          ;; Let (let* in Scheme)
          (('__LIST 'let ('__VEC nvs ...) e es ...)
           (let ((namevals (map-namekey-args nvs))
@@ -264,7 +267,7 @@
          (() '())
 
          (#f (error "Parse error"))
-         (x (error (show #f "Unknown object " (written x))))))
+         (x (error "Unknown object" x))))
 
 (define (eval-i7t s)
   (let* ((parsed (parse-i7t s))

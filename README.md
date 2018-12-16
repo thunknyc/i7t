@@ -16,8 +16,8 @@ Pull requests and issue submissions are welcomed.
 ## Using I7t
 
 Clone this repository and cd to its root directory. Run
-`chibi-scheme`. Evaluate `(import (scheme red) (thunknyc i7t))`. The
-following procedures of interest will now be available to you:
+`chibi-scheme`. Evaluate `(load "i7t.scm")`. The following procedures
+of interest will now be available to you:
 
 * `parse-i7t source [index]`: Parse and return a single I7t object
   from the source (a string or `(chibi parse)` parse stream) at
@@ -98,7 +98,7 @@ Have fun!
 
 ## A sample source file
 
-The file `test.i7t`:
+The file `test/core.i7t`:
 
 ```
 (define s1 #{0 1 2 3 4 5})
