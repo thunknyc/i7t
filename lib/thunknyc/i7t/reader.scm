@@ -45,6 +45,9 @@
 (define (i7tkw . o)
   (apply list '__KW o))
 
+(define (i7ttagged tag v)
+  `(__TAGGED ,tag ,v))
+
 (define i7t-object-grammar
   (grammar/unmemoized
    i7t-object
@@ -56,12 +59,12 @@
                 (-> digit1 ,(parse-char char-numeric?))
                 (-> digits (* (or ,(parse-char char-numeric?)
                                   #\. #\- #\+ #\e #\E #\i #\/))))
-             (apply string sign digit1 digits))
+             (string->number (apply string sign digit1 digits)))
 
             ((: (-> digit1 ,(parse-char char-numeric?))
                 (-> digits (* (or ,(parse-char char-numeric?)
                                   #\. #\- #\+ #\e #\E #\i #\/))))
-             (apply string digit1 digits)))
+             (string->number (apply string digit1 digits))))
 
    (i7t-quoted
     ((: #\' (-> d ,i7t-datum))
@@ -75,11 +78,13 @@
     ((-> s (: (or #\+ #\-)
               (+ ,(parse-char post-sign-sym-char-set))
               (* ,(parse-char sym-char-set))))
-     (apply string (car s) (concatenate (cdr s))))
-    ((-> s (or #\+ #\-)) (string s))
+     (string->symbol (apply string (car s) (concatenate (cdr s)))))
+
+    ((-> s (or #\+ #\-)) (string->symbol (string s)))
+
     ((-> s (: ,(parse-char first-sym-char-set)
               (* ,(parse-char sym-char-set))))
-     (apply string (car s) (cadr s))))
+     (string->symbol (apply string (car s) (cadr s)))))
 
    (i7t-str ((: ,(parse-char #\")
                 (-> s (* ,(parse-not-char #\")))
@@ -121,11 +126,15 @@
              ("false" i7tfalse)
              ("nil" i7tnil)
              ((-> k ,i7t-keyword) k)
-             ((-> ds ,i7t-num) (string->number ds))
+             ((-> ds ,i7t-num))
              ((-> s ,i7t-str) s)
-             ((-> s ,i7t-sym) (string->symbol s)))
+             ((-> s ,i7t-sym)))
 
-   (i7t-datum ((or ,i7t-quoted ,i7t-atom
+   (i7t-tagged ((: #\# ,i7t-space (-> tag ,i7t-sym)
+                   ,i7t-space (-> datum ,i7t-datum))
+                (i7ttagged tag datum)))
+
+   (i7t-datum ((or ,i7t-tagged ,i7t-quoted ,i7t-atom
                    ,i7t-vec ,i7t-list ,i7t-map
                    ,i7t-set ,i7t-sym ,i7t-lambda)))
 

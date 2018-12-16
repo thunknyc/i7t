@@ -33,4 +33,5 @@
 (test-i7t 42 "#_:foo 42")
 (test-i7t (i7tlist 1 2 3 (i7tlist 4 5 6)) "(1 2 #_true #_() 3 (4 #_\"blah\" 5 6))")
 (test-i7t (i7tlambda '+ '%1 1) "#(+ %1 1)")
-(test-end) (if #f #f)
+(test-i7t (i7ttagged 'foo (i7tvector 0 1 2 3)) "#foo[0 1 2 3]")
+(test-end)
