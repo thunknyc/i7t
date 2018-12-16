@@ -10,6 +10,16 @@
      (test-equal equal expected (parse-i7t i7t-string)))))
 
 (test-begin "Testing I7t reader")
+(test-i7t '|.| ".")
+(test-i7t '|..| "..")
+(test-i7t '|...| "...")
+(test-i7t '|..| "..")
+(test-i7t '|.1| ".1")                   ; A symbol, not a number in EDN/Clojure
+(test-i7t '|+.1| "+.1")                 ; Ditto
+(test-i7t '|->| "->")
+(test-i7t 1/2 "1/2")                    ; Support ratios
+(test-i7t 3+4i "+3+4i")                 ; And complex numbers
+(test-i7t 3+4i "3+4i")
 (test-i7t 42 "42")
 (test-i7t 42.3 "42.3")
 (test-i7t 'e20 "e20")

@@ -6,13 +6,13 @@
 (define post-sign-sym-char-set
   (let ((cs (char-set-delete sym-char-set
                              #\0 #\1 #\2 #\3 #\4 #\5
-                             #\6 #\7 #\8 #\9 #\.)))
+                             #\6 #\7 #\8 #\9)))
     cs))
 
 (define first-sym-char-set
   (let ((cs (char-set-delete sym-char-set #\+ #\-
                              #\0 #\1 #\2 #\3 #\4 #\5
-                             #\6 #\7 #\8 #\9 #\.)))
+                             #\6 #\7 #\8 #\9)))
     cs))
 
 (define (in-char-set? cs)
@@ -52,13 +52,16 @@
 
    (i7t-space ((* (or ,(parse-char char-whitespace?) #\, ,i7t-discardable))))
 
-   (i7t-num ((or (-> n (: ,(parse-char char-numeric?)
-                          (* (or ,(parse-char char-numeric?)
-                                 #\. #\- #\+ #\e #\E))))
-                 (-> n (: (or  #\. #\- #\+)
-                          (+ (or ,(parse-char char-numeric?)
-                                 #\. #\- #\+ #\e #\E)))))
-             (string->number (list->string (apply cons n)))))
+   (i7t-num ((: (-> sign (or #\- #\+))
+                (-> digit1 ,(parse-char char-numeric?))
+                (-> digits (* (or ,(parse-char char-numeric?)
+                                  #\. #\- #\+ #\e #\E #\i #\/))))
+             (apply string sign digit1 digits))
+
+            ((: (-> digit1 ,(parse-char char-numeric?))
+                (-> digits (* (or ,(parse-char char-numeric?)
+                                  #\. #\- #\+ #\e #\E #\i #\/))))
+             (apply string digit1 digits)))
 
    (i7t-quoted
     ((: #\' (-> d ,i7t-datum))
@@ -118,7 +121,7 @@
              ("false" i7tfalse)
              ("nil" i7tnil)
              ((-> k ,i7t-keyword) k)
-             ((-> n ,i7t-num) n)
+             ((-> ds ,i7t-num) (string->number ds))
              ((-> s ,i7t-str) s)
              ((-> s ,i7t-sym) (string->symbol s)))
 
