@@ -11,6 +11,12 @@ the `core.appliable` / `apply` method or finding the length of any
 collection which supports the `core.col` / `length` method via the
 `len` procedure.
 
+Aside from the semantics of application described above, I7t's
+semantics are identical to Scheme. I7t is compiled into Scheme, and
+the translated code preserves the position of tail expressions in the
+resulting Scheme, so, unlike Clojure, I7t features TCO. (For this
+reason I7t lacks the `recur` form.
+
 Pull requests and issue submissions are welcomed.
 
 ## Using I7t
@@ -101,68 +107,6 @@ reader. Subgoals of this effort:
   keyword objects: `keyword`, `keyword?`, `keyword-name`,
   `keyword->string`, `keyword->symbol`, `string->keyword`,
   `symbol->keyword`.
-
-## A sample source file
-
-The file `test/core.i7t`:
-
-```
-(define s1 #{0 1 2 3 4 5})
-(define v1 '[foo bar (snafu blorg)])
-(define beverages '{scotch laphroig rye bulleit
-                    vodka no-thanks beer pilsner
-                    water tap wine (bordeaux red)})
-
-(define-proc add
-  ([] 0)
-  ([a] a)
-  ([a b] (+ a b))
-  ([a b c] (+ a b c))
-  ([a b c d & e] (apply + a b c d e)))
-
-(define-proc sine
-  [theta] (sin theta))
-
-(define-proc inc-all [xs]
-  (map #([[x] & rest :as args]
-         (+ x 1))
-       xs (iota 100)))
-
-(define-proc pick [col & offsets]
-  (map #([i] (col i)) offsets))
-
-(define-proc drink-ingredients [{:keys [scotch water]}]
-  (list scotch water))
-
-(define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
-  (list s w 'bevs-length (*-length bevs)))
-
-(define-proc factorial [n]
-  (#(iter [n accum]
-      (if (= n 1) accum
-          (iter (dec n) (* n accum))))
-   n 1))
-
-(test-begin "Testing I7t language")
-(test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
-(test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
-(test true (= (len "foo")
-              (len '(0 1 2))
-              (len '[[a] [b] [c]])
-              (len {:a 0 :b 1 :c 2})
-              (len '#{green eggs ham})))
-(test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
-(test '(laphroig tap (bordeaux red)) (pick beverages 'scotch 'water 'wine))
-(test '((snafu blorg)) (pick v1 2))
-(test '(laphroig tap) (drink-ingredients beverages))
-(test '(laphroig tap bevs-length 6) (drink-ingredients* beverages))
-(test :yo (cond false 12 (= (dec 1) 0) :yo))
-(test nil (s1 6))
-(test 5 (s1 5))
-(test 42 ((#([] #([a b] (+ a b)))) 1 41))
-(test 3628800 (factorial 10))
-(test-end)
-```
 
 ## Why should you care?
 
