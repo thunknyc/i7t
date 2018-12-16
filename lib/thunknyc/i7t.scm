@@ -212,6 +212,14 @@
           `(define ,name (lambda ,@(lambda-clause a1 e1 e2))))
 
          ;; Lambda forms
+         (('__LAMBDA name ('__LIST ('__VEC a1s ...) e1s e2s ...) ...)
+          `(letrec ((,name (match-lambda* ,@(map lambda-clause a1s e1s e2s))))
+             ,name))
+
+         (('__LAMBDA name ('__VEC a1 ...) e1 e2 ...)
+          `(letrec ((,name (lambda ,@(lambda-clause a1 e1 e2))))
+             ,name))
+
          (('__LAMBDA ('__LIST ('__VEC a1s ...) e1s e2s ...) ...)
           `(match-lambda* ,@(map lambda-clause a1s e1s e2s)))
 

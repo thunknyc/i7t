@@ -28,9 +28,11 @@
 (define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
   (list s w 'bevs-length (*-length bevs)))
 
-(define-proc factorial [n accum]
-  (if (= n 1) accum
-      (factorial (dec n) (* n accum))))
+(define-proc factorial [n]
+  (#(iter [n accum]
+      (if (= n 1) accum
+          (iter (dec n) (* n accum))))
+   n 1))
 
 (test-begin "Testing I7t language")
 (test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
@@ -49,5 +51,5 @@
 (test nil (s1 6))
 (test 5 (s1 5))
 (test 42 ((#([] #([a b] (+ a b)))) 1 41))
-(test 3628800 (factorial 10 1))
+(test 3628800 (factorial 10))
 (test-end)
