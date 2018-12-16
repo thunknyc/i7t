@@ -136,12 +136,18 @@ The file `test/core.i7t`:
 (define-proc drink-ingredients* [{s 'scotch w 'water :as bevs}]
   (list s w 'bevs-length (*-length bevs)))
 
-(test-begin "Test I7t")
+(define-proc factorial [n]
+  (#(iter [n accum]
+      (if (= n 1) accum
+          (iter (dec n) (* n accum))))
+   n 1))
+
+(test-begin "Testing I7t language")
 (test 7 (let [a 1 b (+ a 1) c (* b 2)] (+ a b c)))
 (test 11 (loop iter [i 0] (if (> i 10) i (iter (inc i)))))
 (test true (= (len "foo")
               (len '(0 1 2))
-              (len [0 1 2])
+              (len '[[a] [b] [c]])
               (len {:a 0 :b 1 :c 2})
               (len '#{green eggs ham})))
 (test '(1 2 3 4) (inc-all '([0] [1] [2] [3])))
@@ -152,6 +158,8 @@ The file `test/core.i7t`:
 (test :yo (cond false 12 (= (dec 1) 0) :yo))
 (test nil (s1 6))
 (test 5 (s1 5))
+(test 42 ((#([] #([a b] (+ a b)))) 1 41))
+(test 3628800 (factorial 10))
 (test-end)
 ```
 
