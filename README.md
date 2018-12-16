@@ -15,7 +15,7 @@ Aside from the semantics of application described above, I7t's
 semantics are identical to Scheme. I7t is compiled into Scheme, and
 the translated code preserves the position of tail expressions in the
 resulting Scheme, so, unlike Clojure, I7t features TCO. (For this
-reason I7t lacks the `recur` form.
+reason I7t lacks the `recur` form.)
 
 Pull requests and issue submissions are welcomed.
 
